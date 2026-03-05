@@ -185,9 +185,19 @@ import { FleetStats, OpenClawInstance, SystemStatus, AgentRole } from '../../mod
               </div>
             </div>
             <div class="modal-footer">
-              <button class="btn btn-outline" (click)="showCreateModal = false">Cancel</button>
-              <button class="btn btn-primary" (click)="createInstance()" [disabled]="!newInstance.name || !newInstance.agentRoleId">
-                Create Instance
+              <button class="btn btn-outline" (click)="showCreateModal = false" [disabled]="isCreating">Cancel</button>
+              <button class="btn btn-primary" (click)="createInstance()" [disabled]="!newInstance.name || !newInstance.agentRoleId || isCreating">
+                @if (isCreating) {
+                  <span style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                      <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+                      <path d="M12 2a10 10 0 0 1 10 10" stroke-opacity="1"></path>
+                    </svg>
+                    Creating...
+                  </span>
+                } @else {
+                  Create Instance
+                }
               </button>
             </div>
           </div>
@@ -202,6 +212,7 @@ export class DashboardComponent implements OnInit {
   instances: OpenClawInstance[] = [];
   roles: AgentRole[] = [];
   showCreateModal = false;
+  isCreating = false;
   newInstance = {
     name: '',
     description: '',
@@ -250,13 +261,17 @@ export class DashboardComponent implements OnInit {
       return;
     }
     
+    this.isCreating = true;
+    
     this.fleetService.createInstance(this.newInstance).subscribe({
       next: () => {
+        this.isCreating = false;
         this.showCreateModal = false;
         this.newInstance = { name: '', description: '', agentRoleId: '', ollamaModel: '' };
         this.loadData();
       },
       error: (error) => {
+        this.isCreating = false;
         console.error('Failed to create instance:', error);
         alert('Failed to create instance: ' + (error.error?.error || error.message));
       }
