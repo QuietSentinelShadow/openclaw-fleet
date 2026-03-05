@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { FleetService } from '../../services/fleet.service';
-import { FleetStats, OpenClawInstance } from '../../models';
+import { FleetStats, OpenClawInstance, SystemStatus, AgentRole } from '../../models';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,6 +13,41 @@ import { FleetStats, OpenClawInstance } from '../../models';
       <div style="margin-bottom: 2rem;">
         <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem;">Dashboard</h1>
         <p style="color: var(--text-secondary);">Overview of your OpenClaw fleet</p>
+      </div>
+
+      <!-- System Status -->
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-header">
+          <h2 class="card-title">System Status</h2>
+          <button class="btn btn-sm btn-outline" (click)="loadSystemStatus()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path>
+            </svg>
+            Refresh
+          </button>
+        </div>
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--success-color);" 
+                 [style.background]="systemStatus?.docker?.available ? 'var(--success-color)' : 'var(--error-color)'"></div>
+            <span><strong>Docker:</strong> {{ systemStatus?.docker?.available ? 'Connected' : 'Not Available' }}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="width: 12px; height: 12px; border-radius: 50%;" 
+                 [style.background]="systemStatus?.ollama?.available ? 'var(--success-color)' : 'var(--error-color)'"></div>
+            <span><strong>Ollama:</strong> {{ systemStatus?.ollama?.available ? 'Connected' : 'Not Available' }}</span>
+          </div>
+          @if (systemStatus?.ollama?.available && systemStatus?.ollama?.models?.length) {
+            <div>
+              <strong>Models:</strong>
+              @for (model of systemStatus?.ollama?.models; track model.name) {
+                <code style="background: var(--bg-color); padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.75rem; margin-left: 0.25rem;">
+                  {{ model.name }}
+                </code>
+              }
+            </div>
+          }
+        </div>
       </div>
 
       <!-- Stats Grid -->
@@ -152,8 +187,9 @@ import { FleetStats, OpenClawInstance } from '../../models';
 })
 export class DashboardComponent implements OnInit {
   stats: FleetStats | null = null;
+  systemStatus: SystemStatus | null = null;
   instances: OpenClawInstance[] = [];
-  roles: any[] = [];
+  roles: AgentRole[] = [];
   showCreateModal = false;
   newInstance = {
     name: '',
@@ -166,12 +202,17 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+    this.loadSystemStatus();
   }
 
   loadData(): void {
     this.fleetService.getStats().subscribe(stats => this.stats = stats);
     this.fleetService.getInstances().subscribe(instances => this.instances = instances.slice(0, 5));
     this.fleetService.getAgentRoles().subscribe(roles => this.roles = roles);
+  }
+
+  loadSystemStatus(): void {
+    this.fleetService.getSystemStatus().subscribe(status => this.systemStatus = status);
   }
 
   getStatusBadgeClass(status: string): string {

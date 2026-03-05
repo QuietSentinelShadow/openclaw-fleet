@@ -87,6 +87,8 @@ export type TaskType = 'chat' | 'codeGeneration' | 'codeReview' | 'research' | '
 export type TaskStatus = 'pending' | 'queued' | 'running' | 'completed' | 'failed' | 'cancelled' | 'timeout' | 'retrying';
 
 export interface FleetStats {
+  docker?: { available: boolean };
+  ollama?: { available: boolean };
   instances: {
     total: number;
     running: number;
@@ -97,6 +99,52 @@ export interface FleetStats {
     pending: number;
     running: number;
   };
+}
+
+export interface SystemStatus {
+  docker: {
+    available: boolean;
+  };
+  ollama: {
+    available: boolean;
+    baseUrl: string;
+    models: OllamaModel[];
+  };
+}
+
+export interface OllamaModel {
+  name: string;
+  size?: number;
+  modified?: string;
+  digest?: string;
+}
+
+export interface ChatResponse {
+  response: string;
+  auditId: string;
+  latencyMs: number;
+  model?: string;
+  tokens?: {
+    prompt?: number;
+    response?: number;
+  };
+  port?: number;
+  fallback?: boolean;
+  fallbackReason?: string;
+}
+
+export interface BroadcastResponse {
+  broadcastId: string;
+  results: BroadcastResult[];
+}
+
+export interface BroadcastResult {
+  instanceId: string;
+  instanceName?: string;
+  success: boolean;
+  response?: string;
+  latencyMs?: number;
+  error?: string;
 }
 
 export interface CreateInstanceRequest {
