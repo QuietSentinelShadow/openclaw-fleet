@@ -235,10 +235,16 @@ export class DashboardComponent implements OnInit {
   }
 
   createInstance(): void {
-    this.fleetService.createInstance(this.newInstance).subscribe(() => {
-      this.showCreateModal = false;
-      this.newInstance = { name: '', description: '', agentRoleId: '', ollamaModel: '' };
-      this.loadData();
+    this.fleetService.createInstance(this.newInstance).subscribe({
+      next: () => {
+        this.showCreateModal = false;
+        this.newInstance = { name: '', description: '', agentRoleId: '', ollamaModel: '' };
+        this.loadData();
+      },
+      error: (error) => {
+        console.error('Failed to create instance:', error);
+        alert('Failed to create instance: ' + (error.error?.error || error.message));
+      }
     });
   }
 }
