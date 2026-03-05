@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { FleetService } from '../../services/fleet.service';
 import { FleetStats, OpenClawInstance } from '../../models';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   template: `
     <div class="fade-in">
       <div style="margin-bottom: 2rem;">

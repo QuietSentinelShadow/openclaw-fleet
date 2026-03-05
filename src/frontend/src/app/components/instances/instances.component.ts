@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { FleetService } from '../../services/fleet.service';
 import { OpenClawInstance, AgentRole } from '../../models';
 
 @Component({
   selector: 'app-instances',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   template: `
     <div class="fade-in">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">

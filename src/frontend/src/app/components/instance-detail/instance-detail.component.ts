@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { FleetService } from '../../services/fleet.service';
 import { OpenClawInstance } from '../../models';
 
 @Component({
   selector: 'app-instance-detail',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   template: `
     <div class="fade-in">
       @if (instance) {
