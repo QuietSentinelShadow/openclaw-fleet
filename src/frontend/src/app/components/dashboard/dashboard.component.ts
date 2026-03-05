@@ -152,25 +152,36 @@ import { FleetStats, OpenClawInstance, SystemStatus, AgentRole } from '../../mod
             </div>
             <div class="modal-body">
               <div class="form-group">
-                <label class="form-label">Instance Name</label>
-                <input type="text" class="form-control" [(ngModel)]="newInstance.name" placeholder="e.g., Code Helper">
+                <label class="form-label">Instance Name *</label>
+                <input type="text" class="form-control" 
+                       [ngModelOptions]="{standalone: true}"
+                       [(ngModel)]="newInstance.name" 
+                       placeholder="e.g., Code Helper">
               </div>
               <div class="form-group">
                 <label class="form-label">Description</label>
-                <input type="text" class="form-control" [(ngModel)]="newInstance.description" placeholder="Brief description">
+                <input type="text" class="form-control"
+                       [ngModelOptions]="{standalone: true}"
+                       [(ngModel)]="newInstance.description" 
+                       placeholder="Brief description">
               </div>
               <div class="form-group">
-                <label class="form-label">Agent Role</label>
-                <select class="form-control" [(ngModel)]="newInstance.agentRoleId">
+                <label class="form-label">Agent Role *</label>
+                <select class="form-control"
+                        [ngModelOptions]="{standalone: true}"
+                        [(ngModel)]="newInstance.agentRoleId">
                   <option value="">Select a role...</option>
                   @for (role of roles; track role.id) {
-                    <option [value]="role.id">{{ role.name }} - {{ role.description }}</option>
+                    <option [ngValue]="role.id">{{ role.name }} - {{ role.description }}</option>
                   }
                 </select>
               </div>
               <div class="form-group">
                 <label class="form-label">Ollama Model (optional)</label>
-                <input type="text" class="form-control" [(ngModel)]="newInstance.ollamaModel" placeholder="Leave empty for role default">
+                <input type="text" class="form-control"
+                       [ngModelOptions]="{standalone: true}"
+                       [(ngModel)]="newInstance.ollamaModel" 
+                       placeholder="Leave empty for role default">
               </div>
             </div>
             <div class="modal-footer">
@@ -235,6 +246,10 @@ export class DashboardComponent implements OnInit {
   }
 
   createInstance(): void {
+    if (!this.newInstance.name || !this.newInstance.agentRoleId) {
+      return;
+    }
+    
     this.fleetService.createInstance(this.newInstance).subscribe({
       next: () => {
         this.showCreateModal = false;
