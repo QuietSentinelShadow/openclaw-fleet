@@ -1,0 +1,201 @@
+{
+  "realm": "openclaw-fleet",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Fleet Administrator with full access"
+      },
+      {
+        "name": "operator",
+        "description": "Fleet Operator can manage instances"
+      },
+      {
+        "name": "viewer",
+        "description": "Read-only access to fleet"
+      }
+    ],
+    "client": {
+      "openclaw-fleet-api": [
+        {
+          "name": "instance:create",
+          "description": "Create new OpenClaw instances"
+        },
+        {
+          "name": "instance:read",
+          "description": "View instance details"
+        },
+        {
+          "name": "instance:update",
+          "description": "Update instance configuration"
+        },
+        {
+          "name": "instance:delete",
+          "description": "Delete instances"
+        },
+        {
+          "name": "instance:start",
+          "description": "Start instances"
+        },
+        {
+          "name": "instance:stop",
+          "description": "Stop instances"
+        },
+        {
+          "name": "task:create",
+          "description": "Create tasks"
+        },
+        {
+          "name": "task:read",
+          "description": "View tasks"
+        },
+        {
+          "name": "audit:read",
+          "description": "View audit logs"
+        }
+      ]
+    }
+  },
+  "users": [
+    {
+      "username": "fleet-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "admin@openclaw-fleet.local",
+      "firstName": "Fleet",
+      "lastName": "Administrator",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["admin"],
+      "clientRoles": {
+        "openclaw-fleet-api": [
+          "instance:create", "instance:read", "instance:update", "instance:delete",
+          "instance:start", "instance:stop", "task:create", "task:read", "audit:read"
+        ]
+      }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "openclaw-fleet-api",
+      "name": "OpenClaw Fleet API",
+      "description": "Backend API for OpenClaw Fleet Management",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "your-client-secret-here",
+      "redirectUris": ["http://localhost:4200/*", "http://localhost:5000/*"],
+      "webOrigins": ["http://localhost:4200", "http://localhost:5000"],
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "access.token.lifespan": "3600"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "roles",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "client-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "client_roles",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "openclaw-fleet-ui",
+      "name": "OpenClaw Fleet UI",
+      "description": "Angular frontend for OpenClaw Fleet Management",
+      "enabled": true,
+      "publicClient": true,
+      "redirectUris": ["http://localhost:4200/*"],
+      "webOrigins": ["http://localhost:4200"],
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ],
+  "scopes": [],
+  "clientScopes": [
+    {
+      "name": "openid",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true"
+      }
+    },
+    {
+      "name": "profile",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true"
+      }
+    },
+    {
+      "name": "email",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true"
+      }
+    },
+    {
+      "name": "roles",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true"
+      }
+    }
+  ],
+  "defaultDefaultClientScopes": ["openid", "profile", "email", "roles"],
+  "browserSecurityHeaders": {
+    "contentSecurityPolicyReportOnly": "",
+    "xContentTypeOptions": "nosniff",
+    "xRobotsTag": "none",
+    "xFrameOptions": "SAMEORIGIN",
+    "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+    "xXSSProtection": "1; mode=block",
+    "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+  }
+}

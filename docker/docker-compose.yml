@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: openclaw-fleet-db
+    environment:
+      POSTGRES_DB: openclaw_fleet
+      POSTGRES_USER: openclaw
+      POSTGRES_PASSWORD: openclaw_secret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openclaw -d openclaw_fleet"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - openclaw-fleet-network
+
+  # Keycloak Identity Provider
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: openclaw-fleet-keycloak
+    command: start-dev --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/openclaw_fleet
+      KC_DB_USERNAME: openclaw
+      KC_DB_PASSWORD: openclaw_secret
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin_secret
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8080
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: true
+    volumes:
+      - ./keycloak/realm-import.json:/opt/keycloak/data/import/realm.json
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - openclaw-fleet-network
+
+  # Backend API
+  backend:
+    build:
+      context: ../src/backend/OpenClawFleet.Api
+      dockerfile: Dockerfile
+    container_name: openclaw-fleet-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=openclaw_fleet;Username=openclaw;Password=openclaw_secret
+      - Keycloak__Authority=http://keycloak:8080/realms/openclaw-fleet
+      - Keycloak__Audience=openclaw-fleet-api
+      - Ollama__BaseUrl=http://host.docker.internal:11434
+    ports:
+      - "5000:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../workspaces:/app/workspaces
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - openclaw-fleet-network
+
+  # Angular Frontend
+  frontend:
+    build:
+      context: ../src/frontend
+      dockerfile: Dockerfile
+    container_name: openclaw-fleet-ui
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - openclaw-fleet-network
+
+volumes:
+  postgres_data:
+
+networks:
+  openclaw-fleet-network:
+    driver: bridge

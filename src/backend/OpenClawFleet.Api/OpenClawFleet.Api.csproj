@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>OpenClawFleet.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenClawFleet.Core\OpenClawFleet.Core.csproj" />
+    <ProjectReference Include="..\OpenClawFleet.Infrastructure\OpenClawFleet.Infrastructure.csproj" />
+    <ProjectReference Include="..\OpenClawFleet.Orchestration\OpenClawFleet.Orchestration.csproj" />
+  </ItemGroup>
+
+</Project>
