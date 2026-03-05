@@ -15,7 +15,7 @@ import {
   providedIn: 'root'
 })
 export class FleetService {
-  private apiUrl = 'http://localhost:5000/api/fleet';
+  private apiUrl = 'http://localhost:5001/api/fleet';
 
   constructor(private http: HttpClient) {}
 
